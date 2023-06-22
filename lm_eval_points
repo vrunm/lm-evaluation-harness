@@ -1,0 +1,50 @@
+lm_eval
+
+mean(arr): This function calculates the mean (average) of the values in the input array arr. It does this by summing up all the values in the array and dividing the sum by the length of the array.
+
+pop_stddev(arr): This function calculates the population standard deviation of the values in the input array arr. It first calculates the mean of the array, and then it computes the sum of the squared differences between each value and the mean. Finally, it divides the sum by the length of the array and takes the square root to obtain the standard deviation.
+
+sample_stddev(arr): This function calculates the sample standard deviation of the values in the input array arr. It is similar to pop_stddev, but instead of dividing the sum of squared differences by the length of the array, it divides it by (len(arr) - 1). This adjustment is made when calculating the sample standard deviation to account for the fact that the data is a sample from a larger population.
+
+mean_stderr(arr): This function calculates the standard error of the mean for the values in the input array arr. It uses the sample_stddev function to calculate the sample standard deviation and then divides it by the square root of the length of the array.
+
+median(arr): This function calculates the median of the values in the input array arr. It first determines the index of the middle element by dividing the length of the array by 2 using integer division. If the length of the array is odd, the middle element is the median. If the length is even, the median is the average of the two middle elements.
+
+matthews_corrcoef(items): This function calculates the Matthews correlation coefficient (MCC) for a binary classification problem. It takes a list of items, where each item is a pair of gold labels and predicted labels. It first separates the gold labels and predicted labels into separate lists. Then, it uses the sklearn.metrics.matthews_corrcoef function from the scikit-learn library to compute the MCC.
+
+f1_score(items): This function calculates the F1 score for a binary classification problem. Similar to matthews_corrcoef, it takes a list of items where each item is a pair of gold labels and predicted labels. It separates the gold labels and predicted labels into separate lists. It then uses the sklearn.metrics.f1_score function from scikit-learn to compute the F1 score. The maximum F1 score is returned using np.max.
+
+acc_all(items): This function calculates the accuracy when all answers are labeled correctly for each question. It iterates over the items, which is a list of pairs containing prediction and document information. It extracts the prediction and document data using list(zip(*items)). Then, for each document and prediction, it determines the paragraph and question IDs. It checks if the pair (paragraph_id, question_id) exists in the question_scoring_dict. If not, it initializes an empty list for that pair. It compares the gold label (doc["label"] == 1) with the prediction and appends the result (gold_label == pred) to the list corresponding to the pair. Finally, it calculates the accuracy by computing the mean of int(all(x)) for each list in question_scoring_dict.values(). This converts True values to 1 and False values to 0, and only considers a question as correct if all answers are labeled correctly.
+
+acc_all_stderr(items): This function calculates the standard error of the mean for the accuracy when all answers are labeled correctly for each question. It follows a similar process as acc_all, but instead of calculating the accuracy directly, it computes the accuracy for each question and stores the results in question_scoring_dict. Then, it uses the mean_stderr function to calculate the standard error of the mean for the accuracy values.
+
+metric_max_over_ground_truths(metric_fn, prediction, ground_truths): This function computes the maximum value of a given metric between a prediction and a list of ground truths. It iterates over the ground_truths and calculates the metric using metric_fn for each ground truth. The scores for all ground truths are stored in scores_for_ground_truths. Finally, it returns the maximum value from scores_for_ground_truths.
+
+perplexity(items): This function calculates the perplexity based on a list of items. It assumes that the items represent the logarithmic probabilities of events. It uses the mean function to calculate the mean of the items and then takes the exponential (math.exp) of the negative mean to obtain the perplexity.
+
+weighted_mean(items): This function calculates the weighted mean of a list of items. It expects the items to be pairs of values (a, b). It extracts the a and b values using zip(*items). The weighted mean is computed by summing all a values and dividing it by the sum of all b values.
+
+weighted_perplexity(items): This function calculates the weighted perplexity based on a list of items. It follows a similar approach as weighted_mean, but instead of computing the weighted mean directly, it takes the negative weighted mean and applies the exponential function to obtain the weighted perplexity.
+
+bits_per_byte(items): This function calculates the number of bits per byte based on a list of items. It assumes that the items represent the logarithmic probabilities of events. It uses weighted_mean to calculate the weighted mean of the items and then divides it by the logarithm of 2 (math.log(2)) to convert it to bits per byte.
+
+bleu(items): This function calculates the BLEU (Bilingual Evaluation Understudy) score, which is a metric used to evaluate the quality of machine-generated translations compared to reference translations. It computes the BLEU score using the corpus_bleu function from the SacreBLEU library. The items argument contains pairs of reference and predicted translations. The references and predictions are extracted using list(zip(*items)), and then the refs and preds are reformatted using the _sacreformat function. Finally, the BLEU score is computed using sacrebleu.corpus_bleu(preds, refs).score and returned.
+
+chrf(items): This function calculates the chrF++ score, which is another metric for evaluating machine translation output. It measures the precision and recall of character n-grams, enhanced with word n-grams. The items argument contains pairs of reference and predicted translations. Similar to the bleu function, the references and predictions are extracted and reformatted using _sacreformat. Then, the chrF++ score is computed using sacrebleu.corpus_chrf(preds, refs).score and returned.
+
+ter(items): This function calculates the TER (Translation Error Rate), which is an error metric for machine translation. It measures the number of edits required to change a system output into one of the 
+3references. The items argument contains pairs of reference and predicted translations. Similarly, the references and predictions are extracted and reformatted using _sacreformat. Then, the TER score is computed using sacrebleu.corpus_ter(preds, refs).score and returned.
+
+is_non_str_iterable(obj): This is a helper function that checks if an object is an iterable but not a string. It returns True if the object is an iterable and not a string, and False otherwise.
+
+_sacreformat(refs, preds): This is a helper function that formats the references and predictions in a specific way required by the SacreBLEU library for corpus-level calculations. It takes the references (refs) and predictions (preds) as input. The function ensures that the references are in the format of List[List[str]] where the outer list corresponds to predictions and the inner list corresponds to references for each prediction. If the references are not in this format, it converts them accordingly. Similarly, it ensures that the predictions are in the format of List[str]. The function then returns the reformatted references and predictions as a tuple (refs, preds).
+
+
+In evaluator.py
+simple_evaluate(model, model_args, tasks, num_fewshot, batch_size, max_batch_size, device, no_cache, limit, bootstrap_iters, description_dict, check_integrity, decontamination_ngrams_path, write_out, output_base_path): This function is responsible for evaluating a language model (model) on a list of tasks (tasks). It takes several optional arguments such as model_args (string arguments for the model), num_fewshot (number of examples in few-shot context), batch_size (batch size for the model), device (PyTorch device for running models), and others. It returns a dictionary of evaluation results.
+
+evaluate(lm, task_dict, provide_description, num_fewshot, limit, bootstrap_iters, description_dict, decontamination_ngrams_path, write_out, output_base_path): This function is similar to the simple_evaluate function but is called internally. It evaluates a language model (lm) on a dictionary of tasks (task_dict). It also takes various optional arguments and returns a dictionary of evaluation results.
+
+get_train_overlap(docs_for_decontamination, decontamination_ngrams_path, limit): This function is called internally within the evaluate function. It calculates the overlap between training data and test data for decontamination purposes. It takes the documents for decontamination (docs_for_decontamination), the path to the decontamination ngrams file (decontamination_ngrams_path), and an optional limit on the number of documents to consider (limit).
+
+
